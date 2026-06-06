@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "@nestjs/config": "^4.0.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0"
   }
 }
