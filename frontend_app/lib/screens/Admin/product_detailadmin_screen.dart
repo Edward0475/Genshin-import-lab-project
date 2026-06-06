@@ -1,3 +1,4 @@
+import 'dart:io'; // ---> TAMBAHAN PENTING UNTUK BACA GAMBAR GALERI <---
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -51,10 +52,13 @@ class _ProductDetailAdminScreenState extends State<ProductDetailAdminScreen> {
     final double rating = args?['rating']?.toDouble() ?? 5.0;
     final String image = args?['image'] ?? 'assets/images/Kagotsurube.png';
 
-    // Logika Pengambilan Deskripsi
+    // =====================================================
+    // PERBAIKAN: TANGKAP DESKRIPSI DARI HALAMAN SEBELUMNYA
+    // =====================================================
     final String description =
-        itemDescriptions[id] ??
-        'Senjata bintang 5 eksklusif edisi Genshin Import. Sangat cocok dijadikan sebagai pajangan koleksi premium di kamar Anda, ataupun digunakan sebagai pelengkap cosplay untuk event jejepangan.';
+        args?['description'] ?? // Cek dari inputan baru dulu
+        itemDescriptions[id] ?? // Kalau kosong, cek database lokal
+        'Senjata bintang 5 eksklusif edisi Genshin Import. Sangat cocok dijadikan sebagai pajangan koleksi premium di kamar Anda, ataupun digunakan sebagai pelengkap cosplay untuk event jejepangan.'; // Teks default
 
     return Scaffold(
       backgroundColor: bgLightPurple,
@@ -115,7 +119,6 @@ class _ProductDetailAdminScreenState extends State<ProductDetailAdminScreen> {
                           ),
                           onSelected: (String value) {
                             if (value == 'edit') {
-                              // MASUKKAN LOGIKA NAVIGASI KE HALAMAN EDIT DI SINI
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
@@ -124,7 +127,6 @@ class _ProductDetailAdminScreenState extends State<ProductDetailAdminScreen> {
                                 ),
                               );
                             } else if (value == 'delete') {
-                              // MASUKKAN LOGIKA HAPUS DI SINI
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Produk berhasil dihapus'),
@@ -429,9 +431,25 @@ class _ProductDetailAdminScreenState extends State<ProductDetailAdminScreen> {
     );
   }
 
-  // WIDGET BANTUAN UNTUK GAMBAR
+  // =====================================================
+  // PERBAIKAN: WIDGET BANTUAN UNTUK GAMBAR (SUPPORT GALERI)
+  // =====================================================
   Widget _buildProductImage(String imagePath) {
-    if (imagePath.startsWith('http')) {
+    if (imagePath.isEmpty) {
+      return const Icon(Icons.broken_image, size: 64, color: Colors.black26);
+    }
+
+    // Jika gambar diambil dari memori HP / Galeri
+    if (imagePath.startsWith('/data') || imagePath.startsWith('/storage')) {
+      return Image.file(
+        File(imagePath),
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.broken_image, size: 64, color: Colors.black26),
+      );
+    }
+    // Jika gambar dari Internet
+    else if (imagePath.startsWith('http')) {
       return Image.network(
         imagePath,
         fit: BoxFit.contain,
@@ -444,7 +462,9 @@ class _ProductDetailAdminScreenState extends State<ProductDetailAdminScreen> {
         errorBuilder: (context, error, stackTrace) =>
             const Icon(Icons.broken_image, size: 64, color: Colors.black26),
       );
-    } else {
+    }
+    // Jika gambar dari folder assets project
+    else {
       return Image.asset(
         imagePath,
         fit: BoxFit.contain,

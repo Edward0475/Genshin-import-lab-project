@@ -1,4 +1,4 @@
-import 'dart:io'; // Tambahan untuk merender gambar dari path lokal galeri
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -9,7 +9,6 @@ import 'product_detailadmin_screen.dart';
 import 'admin_more_screen.dart';
 import 'admin_notification_screen.dart';
 
-// UBAH MENJADI STATEFUL WIDGET AGAR BISA UPDATE DATA
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
 
@@ -20,9 +19,6 @@ class AdminDashboardScreen extends StatefulWidget {
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   static const primaryPurple = Color(0xFF5A4CA9);
 
-  // ==========================================
-  // 1. PINDAHKAN LIST KE SINI (DALAM STATE)
-  // ==========================================
   final List<Map<String, String>> categories = [
     {'name': 'Bow', 'image': 'assets/images/Bow.png'},
     {'name': 'Claymore', 'image': 'assets/images/claymore.png'},
@@ -32,54 +28,55 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     {'name': 'Artifacts', 'image': 'assets/images/Artifact.png'},
   ];
 
-  // List diubah menjadi variabel class agar bisa ditambah datanya (tidak bersifat final kaku)
   List<Map<String, String>> weapons = [
     {
       'id': 'w1',
       'name': 'Kagotsurube Isshin',
-      'price': 'RP.300.000',
+      'price': 'RP.300000',
       'image': 'assets/images/Kagotsurube.png',
+      'description': 'Pedang kutukan mematikan yang haus darah.',
     },
     {
       'id': 'w2',
       'name': 'Narzissenkreuz Pneuma',
-      'price': 'RP.300.000',
+      'price': 'RP.300000',
       'image': 'assets/images/Pneuma.png',
+      'description': 'Pedang suci peninggalan pahlawan kuno Fontaine.',
     },
     {
       'id': 'w3',
       'name': 'Hamayumi Bow',
-      'price': 'RP.300.000',
+      'price': 'RP.300000',
       'image': 'assets/images/Hamayumi.png',
+      'description': 'Busur panah Inazuma yang sangat kuat dan presisi.',
     },
     {
       'id': 'w4',
       'name': 'Jade Winged Spear',
-      'price': 'RP.300.000',
+      'price': 'RP.300000',
       'image': 'assets/images/Winged.png',
+      'description': 'Tombak tajam warisan pelindung Liyue.',
     },
     {
       'id': 'w5',
       'name': 'Amenoma Kageuchi',
-      'price': 'RP.300.000',
+      'price': 'RP.300000',
       'image': 'assets/images/Amenoma.png',
+      'description': 'Katana andalan para samurai elit.',
     },
     {
       'id': 'w6',
       'name': 'Wolf\'s Gravestone',
-      'price': 'RP.300.000',
+      'price': 'RP.300000',
       'image': 'assets/images/Wolf.png',
+      'description': 'Pedang berat milik pejuang legendaris dari utara.',
     },
   ];
 
-  // ==========================================
-  // 2. FUNGSI UNTUK MERENDER GAMBAR (GALERI/ASSET)
-  // ==========================================
   Widget _buildProductImage(String imagePath) {
     if (imagePath.isEmpty) {
       return const Icon(Icons.image_not_supported, color: Colors.black26);
     }
-    // Jika path dari memori HP (Galeri)
     if (imagePath.startsWith('/data') || imagePath.startsWith('/storage')) {
       return Image.file(
         File(imagePath),
@@ -87,18 +84,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         errorBuilder: (c, e, s) =>
             const Icon(Icons.image_not_supported, color: Colors.black26),
       );
-    }
-    // Jika dari internet
-    else if (imagePath.startsWith('http')) {
+    } else if (imagePath.startsWith('http')) {
       return Image.network(
         imagePath,
         fit: BoxFit.contain,
         errorBuilder: (c, e, s) =>
             const Icon(Icons.image_not_supported, color: Colors.black26),
       );
-    }
-    // Jika dari folder assets
-    else {
+    } else {
       return Image.asset(
         imagePath,
         fit: BoxFit.contain,
@@ -106,6 +99,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             const Icon(Icons.image_not_supported, color: Colors.black26),
       );
     }
+  }
+
+  // Fungsi untuk memformat angka jadi harga (misal: 300000 -> 300.000)
+  String _formatPrice(int price) {
+    String priceStr = price.toString();
+    String result = '';
+    int count = 0;
+    for (int i = priceStr.length - 1; i >= 0; i--) {
+      result = priceStr[i] + result;
+      count++;
+      if (count % 3 == 0 && i != 0) {
+        result = '.$result';
+      }
+    }
+    return 'RP.$result';
   }
 
   @override
@@ -116,7 +124,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         bottom: false,
         child: Column(
           children: [
-            // TOP HEADER ADMIN
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 24.0,
@@ -155,7 +162,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  // Search Pill
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -197,8 +203,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ],
               ),
             ),
-
-            // WHITE BODY CONTENT
             Expanded(
               child: Container(
                 width: double.infinity,
@@ -232,8 +236,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-
-                        // Kategori Horizontal
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           physics: const BouncingScrollPhysics(),
@@ -266,8 +268,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           ),
                         ),
                         const SizedBox(height: 32),
-
-                        // ALL WEAPON HEADER
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -333,6 +333,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                           'name': item['name'],
                                           'price': item['price'],
                                           'image': item['image'],
+                                          'description':
+                                              item['description'] ??
+                                              'Tidak ada deskripsi',
                                         },
                                       ),
                                     ),
@@ -355,9 +358,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                         child: Center(
                                           child: Padding(
                                             padding: const EdgeInsets.all(12.0),
-                                            // ==========================================
-                                            // 3. GUNAKAN FUNGSI BUILD IMAGE DI SINI
-                                            // ==========================================
                                             child: _buildProductImage(
                                               item['image']!,
                                             ),
@@ -412,9 +412,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                                       color: primaryPurple,
                                                     ),
                                                   ),
+                                                  // ==========================================
+                                                  // PERBAIKAN TOMBOL EDIT SUPAYA SAVE DATA
+                                                  // ==========================================
                                                   GestureDetector(
-                                                    onTap: () {
-                                                      Navigator.push(
+                                                    onTap: () async {
+                                                      final editedWeapon = await Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
                                                           builder: (context) =>
@@ -427,9 +430,46 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                                                     priceVal,
                                                                 initialImage:
                                                                     item['image'],
+                                                                initialDesc:
+                                                                    item['description'],
                                                               ),
                                                         ),
                                                       );
+
+                                                      // TANGKAP DAN UPDATE DATA JIKA DI-SAVE
+                                                      if (editedWeapon !=
+                                                              null &&
+                                                          mounted) {
+                                                        setState(() {
+                                                          weapons[idx] = {
+                                                            'id': item['id']!,
+                                                            'name':
+                                                                editedWeapon['name']
+                                                                    .toString(),
+                                                            'price': _formatPrice(
+                                                              editedWeapon['price']
+                                                                  .toInt(),
+                                                            ),
+                                                            'image':
+                                                                editedWeapon['image']
+                                                                    .toString(),
+                                                            'description':
+                                                                editedWeapon['description']
+                                                                    .toString(),
+                                                          };
+                                                        });
+                                                        ScaffoldMessenger.of(
+                                                          context,
+                                                        ).showSnackBar(
+                                                          const SnackBar(
+                                                            content: Text(
+                                                              'Perubahan berhasil disimpan!',
+                                                            ),
+                                                            backgroundColor:
+                                                                Colors.blue,
+                                                          ),
+                                                        );
+                                                      }
                                                     },
                                                     child: const Icon(
                                                       Icons.edit_outlined,
@@ -472,12 +512,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           children: [
             _buildNavTab(Icons.storefront, 'Menu', true, primaryPurple, () {}),
 
-            // ==========================================
-            // 4. MENGAMBIL DATA DARI HALAMAN ADD WEAPON
-            // ==========================================
             GestureDetector(
               onTap: () async {
-                // TUNGGU DATA DARI HALAMAN ADD WEAPON
                 final newWeaponData = await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -485,20 +521,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                 );
 
-                // JIKA DATA TIDAK KOSONG (USER MENEKAN CONFIRM)
                 if (newWeaponData != null) {
+                  if (!mounted) return;
+
                   setState(() {
-                    // Masukkan ke dalam list weapons yang kita buat di atas
                     weapons.add({
-                      'id': 'w${weapons.length + 1}', // Buat ID otomatis
-                      'name': newWeaponData['name'],
-                      'price':
-                          'RP.${newWeaponData['price'].toInt()}', // Format Harga
-                      'image': newWeaponData['image'], // Path dari galeri
+                      'id': 'w${weapons.length + 1}',
+                      'name': newWeaponData['name'].toString(),
+                      // Memanggil fungsi format agar harga baru langsung rapi
+                      'price': _formatPrice(newWeaponData['price'].toInt()),
+                      'image': newWeaponData['image'].toString(),
+                      'description': newWeaponData['description'].toString(),
                     });
                   });
 
-                  // Munculkan pop-up hijau di bawah layar
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Weapon } from './weapons/weapon.entity';
+import { WeaponsModule } from './weapons/weapons.module'; // WAJIB ADA
 
 @Module({
   imports: [
@@ -10,14 +10,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: '123456',
-      database: 'nestdb',
-
-      autoLoadEntities: true,
-      synchronize: true,
+      password: '',
+      database: 'genshin_import',
+      entities: [Weapon],
+      synchronize: false,
     }),
+    WeaponsModule, // WAJIB ADA agar API bisa jalan
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

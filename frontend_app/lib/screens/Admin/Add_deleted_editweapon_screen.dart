@@ -254,7 +254,8 @@ class _AddEditWeaponScreenState extends State<AddEditWeaponScreen> {
                   hintText: "e.g. 300000",
                   isBold: true,
                   isLarge: true,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType
+                      .text, // Ubah ke text agar bisa terima input "Rp. xxx"
                 ),
               ),
               const SizedBox(height: 24),
@@ -268,17 +269,20 @@ class _AddEditWeaponScreenState extends State<AddEditWeaponScreen> {
 
   // --- FUNGSI PREVIEW GAMBAR ---
   Widget _buildImagePreview() {
-    // 1. Jika ada gambar baru dari galeri
     if (_selectedImage != null) {
       return Image.file(
         _selectedImage!,
         fit: BoxFit.cover,
         width: double.infinity,
       );
-    }
-    // 2. Jika mode Edit dan ada gambar bawaan
-    else if (imageUrl.isNotEmpty) {
-      if (imageUrl.startsWith('http')) {
+    } else if (imageUrl.isNotEmpty) {
+      if (imageUrl.startsWith('/data') || imageUrl.startsWith('/storage')) {
+        return Image.file(
+          File(imageUrl),
+          fit: BoxFit.cover,
+          width: double.infinity,
+        );
+      } else if (imageUrl.startsWith('http')) {
         return Image.network(
           imageUrl,
           fit: BoxFit.cover,
@@ -287,9 +291,7 @@ class _AddEditWeaponScreenState extends State<AddEditWeaponScreen> {
       } else {
         return Image.asset(imageUrl, fit: BoxFit.cover, width: double.infinity);
       }
-    }
-    // 3. Jika belum ada gambar sama sekali (Mode Tambah Baru)
-    else {
+    } else {
       return Center(
         child: Container(
           width: 100,
@@ -349,9 +351,10 @@ class _AddEditWeaponScreenState extends State<AddEditWeaponScreen> {
               child: SizedBox(
                 height: 48,
                 child: ElevatedButton(
-                  // --- FUNGSI MENGIRIM DATA SAAT TOMBOL CONFIRM DITEKAN ---
+                  // =====================================================
+                  // PERBAIKAN: FUNGSI MENGIRIM DATA SAAT TOMBOL DITEKAN
+                  // =====================================================
                   onPressed: () {
-                    // Validasi form kosong
                     if (_nameController.text.isEmpty ||
                         _priceController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -362,21 +365,29 @@ class _AddEditWeaponScreenState extends State<AddEditWeaponScreen> {
                       return;
                     }
 
-                    // Kumpulkan data ke dalam Map
+                    // 1. Bersihkan Harga (Hapus huruf "Rp", spasi, dan titik)
+                    String cleanPrice = _priceController.text.replaceAll(
+                      RegExp(r'[^0-9]'),
+                      '',
+                    );
+                    double finalPrice = double.tryParse(cleanPrice) ?? 0.0;
+
+                    // 2. Kumpulkan data ke dalam Map
                     final weaponData = {
-                      'id': widget.weaponId, // Jika null berarti produk baru
+                      'id': widget.weaponId,
                       'name': _nameController.text,
-                      'description': _descController.text,
+                      'description':
+                          _descController.text, // Pastikan deskripsi masuk!
                       'category': selectedCategory,
-                      'price': double.tryParse(_priceController.text) ?? 0.0,
+                      'price': finalPrice, // Harga yang sudah bersih dari huruf
                       'stock': stock,
-                      // Jika ambil dari galeri pakai path File, jika edit pakai URL lama
                       'image': _selectedImage?.path ?? imageUrl,
                     };
 
-                    // Kirim data kembali ke halaman sebelumnya (Menu)
+                    // 3. Kirim data kembali ke halaman sebelumnya
                     Navigator.pop(context, weaponData);
                   },
+                  // =====================================================
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryPurple,
                     shape: RoundedRectangleBorder(
@@ -428,6 +439,8 @@ class _AddEditWeaponScreenState extends State<AddEditWeaponScreen> {
           TextField(
             controller: controller,
             keyboardType: keyboardType,
+            // Jika butuh input paragraf (deskripsi), TextField bisa multilines
+            maxLines: label.contains('Description') ? 3 : 1,
             style: GoogleFonts.inter(
               fontWeight: isBold ? FontWeight.w900 : FontWeight.w500,
               fontSize: isLarge ? 18 : 14,
