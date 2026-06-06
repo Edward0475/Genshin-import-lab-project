@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Weapon } from './weapons/weapon.entity';
-import { WeaponsModule } from './weapons/weapons.module'; // WAJIB ADA
+import { User } from './users/user.entity'; // Import file User yang baru dibuat
+import { WeaponsModule } from './weapons/weapons.module';
+import { AuthModule } from './auth/auth.module'; // Otomatis dibuat oleh NestJS
+import { UsersModule } from './users/users.module'; // Otomatis dibuat oleh NestJS
 
 @Module({
   imports: [
@@ -12,12 +15,12 @@ import { WeaponsModule } from './weapons/weapons.module'; // WAJIB ADA
       username: 'root',
       password: '',
       database: 'genshin_import',
-      entities: [Weapon],
+      entities: [Weapon, User], // Tambahkan User di sini
       synchronize: false,
     }),
-    WeaponsModule, // WAJIB ADA agar API bisa jalan
+    WeaponsModule,
+    AuthModule,
+    UsersModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}
